@@ -15,3 +15,6 @@ It will be powered by two AA battery, and should not consume (sleep mode)
 - a plastic box
 - a RC522 RFID reader and some RFID key
 
+# Some links
+- [doc for the RC522 board](https://www.sunrom.com/p/mifare-rfid-readerwriter-1356mhz-rc522)
+
