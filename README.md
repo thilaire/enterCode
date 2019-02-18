@@ -14,7 +14,7 @@ It will be powered by three AA battery, and should not consume too much (sleep m
 - two LEDs (green and red)
 - a plastic box
 - a RC522 RFID reader and some RFID key
-- four 7-segment displasy, with TM1637 driver
+- four 7-segment displays, with TM1637 driver
 
 # Some links
 - [doc for the RC522 board](https://www.sunrom.com/p/mifare-rfid-readerwriter-1356mhz-rc522)
