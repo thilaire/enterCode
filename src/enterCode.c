@@ -16,7 +16,7 @@
  * PD6: (???) RS522
 */
 
-/* code size: MUST BE a power of 2*/
+/* maximum code size */
 #define CODE_SIZE	8
 
 /* keys */
@@ -25,6 +25,8 @@
 #define NO_KEY		16
 
 
+
+/* debug function */
 void Green() {
 	PORTA |= 0b00000010;
 	_delay_ms(100);
@@ -42,9 +44,6 @@ void GreenRed() {
 	PORTA &= ~0b00000011;
 }
 
-
-
-/* debug */
 const uint8_t NUMBER_FONT[] = {
 		0b00111111, // 0
 		0b00000110, // 1
@@ -88,7 +87,7 @@ const uint8_t CODE_CHAR[] = {
 
 /* check if the code is correct */
 uint8_t checkCode(uint8_t* code, uint8_t pos) {
-	if ( (code[pos]==0) && (code[(pos-1) & (CODE_SIZE-1)]==1) && (code[(pos-2) & (CODE_SIZE-1)]==2) )
+	if ( (code[4]==0) && (code[5]==1) && (code[6]==2) && (code[7]==NO_KEY) )
 		return 1;
 	else
 		return 0;
@@ -160,8 +159,8 @@ uint8_t waitForKeyToRemove(){
 int main()
 {
 	uint8_t key;
-	uint8_t code[CODE_SIZE];
-	uint8_t pos = 0;
+	uint8_t code[CODE_SIZE + 4];
+	uint8_t pos = 4;
 
     /* input/output config */
 	DDRA = 0b00000011;       /* PA0 and PA1 are output */
@@ -170,7 +169,7 @@ int main()
     PORTD = 0b00001111;		 /* PD0 to PD4 with pull-up */
 
     /* init code */
-	for(uint8_t i=0; i<CODE_SIZE; i++)
+	for(uint8_t i=0; i<CODE_SIZE+4; i++)
 		code[i] = NO_KEY;
 
     /* init message */
@@ -186,7 +185,7 @@ int main()
 		/* manage the key */
 		if (key == KEY_SHARP) {
 			/* end of the code */
-			if (checkCode(code, pos-1)) {
+			if (checkCode(code, pos)) {
 				/* green led */
 				PORTA |= 0b00000010;
 				_delay_ms(2000);
@@ -199,21 +198,22 @@ int main()
 				PORTA &= ~0b00000001;
 			}
 			/* reset code */
-			for(uint8_t i=0; i<CODE_SIZE; i++)
-				code[i] = 16;
+			for(uint8_t i=0; i<CODE_SIZE+4; i++)
+				code[i] = NO_KEY;
 			TM1637_write4(0,0,0,0);
 		}
 		else if (key == KEY_AST) {
 			/* delete the last key */
-			pos = (pos-1) & (CODE_SIZE-1);
+			if (pos>3)
+				pos--;
 			code[pos] = NO_KEY;
-			TM1637_write4(CODE_CHAR[code[(pos-4) & (CODE_SIZE-1)]], CODE_CHAR[code[(pos-3) & (CODE_SIZE-1)]], CODE_CHAR[code[(pos-2) & (CODE_SIZE-1)]], CODE_CHAR[code[(pos-1) & (CODE_SIZE-1)]]);
+			TM1637_write4(CODE_CHAR[code[pos-4]], CODE_CHAR[code[pos-3]], CODE_CHAR[code[pos-2]], CODE_CHAR[code[pos-1]]);
 		}
-		else if (key != NO_KEY) {
+		else if ( (key != NO_KEY) && (pos<(4+CODE_SIZE)) ) {
 			/* new key */
-			TM1637_write4(CODE_CHAR[code[(pos-3) & (CODE_SIZE-1)]], CODE_CHAR[code[(pos-2) & (CODE_SIZE-1)]], CODE_CHAR[code[(pos-1) & (CODE_SIZE-1)]], CODE_CHAR[key]);
+			TM1637_write4(CODE_CHAR[code[pos-3]], CODE_CHAR[code[pos-2]], CODE_CHAR[code[pos-1]], CODE_CHAR[key]);
 			code[pos] = key;
-			pos = (pos+1) & (CODE_SIZE-1);
+			pos++;
 		}
 
 		_delay_ms(500);
