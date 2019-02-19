@@ -16,8 +16,9 @@
  * PD6: (???) RS522
 */
 
-/* maximum code size */
+/* maximum code size and number of codes (master + others)*/
 #define CODE_SIZE	8
+#define NB_CODES	4
 
 /* keys */
 #define KEY_SHARP 	14
@@ -25,23 +26,25 @@
 #define NO_KEY		16
 
 
-
 /* debug function */
 void Green() {
 	PORTA |= 0b00000010;
 	_delay_ms(100);
 	PORTA &= ~0b00000010;
+	_delay_ms(100);
 }
 
 void Red() {
 	PORTA |= 0b00000001;
 	_delay_ms(100);
 	PORTA &= ~0b00000001;
+	_delay_ms(100);
 }
 void GreenRed() {
 	PORTA |= 0b00000011;
 	_delay_ms(100);
 	PORTA &= ~0b00000011;
+	_delay_ms(100);
 }
 
 const uint8_t NUMBER_FONT[] = {
@@ -85,12 +88,67 @@ const uint8_t CODE_CHAR[] = {
 };
 
 
-/* check if the code is correct */
-uint8_t checkCode(uint8_t* code, uint8_t pos) {
-	if ( (code[4]==0) && (code[5]==1) && (code[6]==2) && (code[7]==NO_KEY) )
-		return 1;
-	else
-		return 0;
+
+void EEPROM_write(unsigned int ucAddress, unsigned char ucData) {
+/* Wait for completion of previous write */ while(EECR & (1<<EEPE));
+/* Set Programming mode */
+	EECR = (0<<EEPM1)|(0<<EEPM0);
+/* Set up address and data registers */ EEAR = ucAddress;
+	EEDR = ucData;
+/* Write logical one to EEMPE */
+	EECR |= (1<<EEMPE);
+	/* Start eeprom write by setting EEPE */
+	EECR |= (1<<EEPE);
+}
+
+
+unsigned char EEPROM_read(unsigned int ucAddress) {
+	/* Wait for completion of previous write */
+	while(EECR & (1<<EEPE));
+/* Set up address register */
+	EEAR = ucAddress;
+/* Start eeprom read by writing EERE */ EECR |= (1<<EERE);
+/* Return data from data register */ return EEDR;
+}
+
+
+/* read the codes in the EEPROM */
+void readCodesEEPROM(uint8_t codes[NB_CODES][CODE_SIZE]) {
+
+	uint8_t* tab = &(codes[0][0]);
+	for(uint8_t i=0; i<NB_CODES*CODE_SIZE; i++) {
+		*(tab++) = EEPROM_read(i);
+	}
+
+}
+
+void writeCodesEEPROM(uint8_t codes[NB_CODES][CODE_SIZE]) {
+
+	uint8_t* tab = &(codes[0][0]);
+	for(uint8_t i=0; i<NB_CODES*CODE_SIZE; i++) {
+		EEPROM_write(i, *(tab++));
+	}
+
+}
+
+
+
+
+
+
+/* check if the code is correct
+ * returns 255 if the code is not correct, otherwise return the code number*/
+uint8_t checkCode(uint8_t codes[NB_CODES][CODE_SIZE], uint8_t theCode[CODE_SIZE]) {
+	/* check individually each code */
+	for(uint8_t i=0; i<NB_CODES; i++) {
+		uint8_t j=4;
+		while ((theCode[j]==codes[i][j-4]) && (theCode[j] != NO_KEY))
+			j++;
+		if (theCode[j]==codes[i][j-4])
+			return i;
+	}
+	/* otherwise, the code is not equal to one of the codes */
+	return 255;
 }
 
 /* returns the number of the 1st bit set to 0
@@ -107,26 +165,28 @@ uint8_t getZeroBit(uint8_t x)
 
 
 
-/* main function: wait for a key, and return the key character */
+/* main function: wait for a key, and return the key character
+ *
+ * the NOP after each PORTB changes are *required*
+ * */
 uint8_t waitForKey(){
 	uint8_t line, col;
 
 	/* set the output lines to 0 */
 	PORTB &= ~(0b00001111);
 	_NOP();
-	/* wait for a key */
+	/* wait for a key and get the line*/
 	//TODO: use interrupt !!
-	while ((PIND&15) == 15);	/* attente touche */
+	while ((PIND&15) == 15);
 	line = getZeroBit(PIND&15);
-
+	/* wait for debounce (useful?) */
 	_delay_ms(100);
-
-	/* get column number */
+	/* get column number, by toggling each column */
 	PORTB |= 0b00001111;_NOP();
 	for(col=0; col<4; col++) {
 		PORTB &= ~(1<<col);
 		_NOP();_NOP();
-		if ((PIND&15) != 15)		/* TODO: use ~ */
+		if ((PIND&15) != 15)
 			break;
 		PORTB |= 0b00001111;
 		_NOP();
@@ -143,30 +203,23 @@ uint8_t waitForKey(){
 }
 
 
-uint8_t waitForKeyToRemove(){
-	PORTB &= ~(0b00001111);
-	_NOP();
-	TM1637_write(NUMBER_FONT[PIND&15],0);
-
-	PORTB |= 0b00001111;
-	_NOP();
-	TM1637_write(NUMBER_FONT[PIND&15],2);
-}
-
-
-
-
 int main()
 {
-	uint8_t key;
-	uint8_t code[CODE_SIZE + 4];
-	uint8_t pos = 4;
+	uint8_t key;							/* key hit on the keyboard */
+	uint8_t code[CODE_SIZE + 4];			/* actual code the user is typing on the keyboard */
+	uint8_t pos = 4;						/* position of the next char (the 4 char are NO_KEY) */
+	uint8_t codes[NB_CODES][CODE_SIZE];		/* array of valid codes (#0 is the master code) */
+	uint8_t nC;								/* code number */
+
 
     /* input/output config */
 	DDRA = 0b00000011;       /* PA0 and PA1 are output */
     DDRB = 0b11101111;       /* PB4 is input, other are output */
     DDRD = 0b11110000;       /* PD0 to PD4 are input */
     PORTD = 0b00001111;		 /* PD0 to PD4 with pull-up */
+
+    /* import the codes */
+	readCodesEEPROM(codes);
 
     /* init code */
 	for(uint8_t i=0; i<CODE_SIZE+4; i++)
@@ -185,7 +238,12 @@ int main()
 		/* manage the key */
 		if (key == KEY_SHARP) {
 			/* end of the code */
-			if (checkCode(code, pos)) {
+			nC = checkCode(codes, code);
+			if (nC != 255) {
+				for(uint8_t i=0; i<nC; i++) {
+					Green();
+					_delay_ms(500);
+				}
 				/* green led */
 				PORTA |= 0b00000010;
 				_delay_ms(2000);
@@ -205,7 +263,7 @@ int main()
 		}
 		else if (key == KEY_AST) {
 			/* delete the last key */
-			if (pos>3)
+			if (pos>4)
 				pos--;
 			code[pos] = NO_KEY;
 			TM1637_write4(CODE_CHAR[code[pos-4]], CODE_CHAR[code[pos-3]], CODE_CHAR[code[pos-2]], CODE_CHAR[code[pos-1]]);
