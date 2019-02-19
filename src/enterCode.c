@@ -201,6 +201,7 @@ int main()
 			for(uint8_t i=0; i<CODE_SIZE+4; i++)
 				code[i] = NO_KEY;
 			TM1637_write4(0,0,0,0);
+			pos = 4;
 		}
 		else if (key == KEY_AST) {
 			/* delete the last key */
