@@ -140,10 +140,13 @@ int main()
 					PORTA |= 0b00000011;
 				}
 				else if (nC != 255) {
+					/* display the number */
+					TM1637_write4(NUMBER_FONT[nC], 64, 64, 64);
 					/* green led */
 					PORTA |= 0b00000010;
 					_delay_ms(2000);
 					PORTA &= ~0b00000010;
+					TM1637_write4(0,0,0,0);
 				} else {
 					/* red led */
 					PORTA |= 0b00000001;
@@ -167,6 +170,7 @@ int main()
 				PORTA |= 0b00000010;
 				_delay_ms(1000);
 				PORTA &= ~0b00000010;
+				status = ACCESS_MODE;
 			}
 		}
 		else if (key == KEY_AST) {
@@ -177,13 +181,15 @@ int main()
 			TM1637_write4(CODE_CHAR[accessCode[pos-4]], CODE_CHAR[accessCode[pos-3]], CODE_CHAR[accessCode[pos-2]], CODE_CHAR[accessCode[pos-1]]);
 		}
 		else if ( (key != NO_KEY) && (pos<(4+CODE_SIZE)) ) {
-			/* new key */
-			TM1637_write4(CODE_CHAR[accessCode[pos-3]], CODE_CHAR[accessCode[pos-2]], CODE_CHAR[accessCode[pos-1]], CODE_CHAR[key]);
+			/* store the new key */
 			accessCode[pos] = key;
+			/* skip to the 4th key if we are in MASTER MODE and 1st char */
+			if (pos==0) {
+				pos = 3;
+			}
+			/* display */
+			TM1637_write4(CODE_CHAR[accessCode[pos-3]], CODE_CHAR[accessCode[pos-2]], CODE_CHAR[accessCode[pos-1]], CODE_CHAR[key]);
 			pos++;
-			/* in Master mode, the 1st key is the code number, so we move to the 4th position after that */
-			if (pos==1)
-				pos = 4;
 		}
 
 		_delay_ms(500);
