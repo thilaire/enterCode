@@ -45,24 +45,21 @@ Copyright 2019 T. Hilaire
 
 
 /* debug function */
-void Green() {
+void Green(uint16_t delay) {
 	PORTA |= 0b00000010;
-	_delay_ms(100);
+	_delay_ms(delay);
 	PORTA &= ~0b00000010;
-	_delay_ms(100);
 }
 
-void Red() {
+void Red(uint16_t delay) {
 	PORTA |= 0b00000001;
-	_delay_ms(100);
+	_delay_ms(delay);
 	PORTA &= ~0b00000001;
-	_delay_ms(100);
 }
-void GreenRed() {
+void GreenRed(uint16_t delay) {
 	PORTA |= 0b00000011;
-	_delay_ms(100);
+	_delay_ms(delay);
 	PORTA &= ~0b00000011;
-	_delay_ms(100);
 }
 
 const uint8_t NUMBER_FONT[] = {
@@ -116,7 +113,7 @@ int main()
 	uint8_t pos = 4;						/* position of the next char (the 4 char are NO_KEY) */
 	uint8_t codes[NB_CODES][CODE_SIZE];		/* array of valid codes (#0 is the master code) */
 	uint8_t nC;								/* code number */
-
+	uint8_t status = ACCESS_MODE;
 
     /* input/output config */
 	DDRA = 0b00000011;       /* PA0 and PA1 are output */
@@ -143,29 +140,45 @@ int main()
 		key = waitForKey();
 		/* manage the key */
 		if (key == KEY_SHARP) {
-			/* end of the code */
-			nC = checkCode(codes, accessCode);
-			if (nC != 255) {
-				for(uint8_t i=0; i<nC; i++) {
-					Green();
-					_delay_ms(500);
+			/* validation of the code */
+			if (status == ACCESS_MODE) {
+				/* NORMAL MODE */
+				nC = checkCode(codes, accessCode);
+				/* reset code and display*/
+				for (uint8_t i=0; i < CODE_SIZE+4; i++)
+					accessCode[i] = NO_KEY;
+				TM1637_write4(0, 0, 0, 0);
+				pos = 4;
+				/* check what to do now */
+				if (nC ==0) {
+					/* the master code has been entered */
+					status = MASTER_MODE;
+					pos = 0;
+					/* turn on the two LEDs */
+					PORTA |= 0b00000011;
 				}
-				/* green led */
-				PORTA |= 0b00000010;
-				_delay_ms(2000);
-				PORTA &= ~0b00000010;
+				else if (nC != 255) {
+					/* green led */
+					Green(2000);
+				} else {
+					/* red led */
+					Red(2000);
+				}
+			} else {
+				/* MASTER MODE */
+				/* turn off the two LEDs */
+				PORTA &= ~0b00000011;
+				/* update the code and write in the EEPROM */
+				updateCode(codes, accessCode);
+				writeCodesEEPROM(codes);
+				/* reset code and display */
+				for (uint8_t i=0; i < CODE_SIZE+4; i++)
+					accessCode[i] = NO_KEY;
+				TM1637_write4(0, 0, 0, 0);
+				pos = 4;
+				/* green light to tell that it's ok */
+				Green(2000);
 			}
-			else {
-				/* red led */
-				PORTA |= 0b00000001;
-				_delay_ms(2000);
-				PORTA &= ~0b00000001;
-			}
-			/* reset code */
-			for(uint8_t i=0; i<CODE_SIZE+4; i++)
-				accessCode[i] = NO_KEY;
-			TM1637_write4(0,0,0,0);
-			pos = 4;
 		}
 		else if (key == KEY_AST) {
 			/* delete the last key */
@@ -179,6 +192,9 @@ int main()
 			TM1637_write4(CODE_CHAR[accessCode[pos-3]], CODE_CHAR[accessCode[pos-2]], CODE_CHAR[accessCode[pos-1]], CODE_CHAR[key]);
 			accessCode[pos] = key;
 			pos++;
+			/* in Master mode, the 1st key is the code number, so we move to the 4th position after that */
+			if (pos==1)
+				pos = 4;
 		}
 
 		_delay_ms(500);

@@ -28,9 +28,15 @@ Copyright 2019 T. Hilaire
 #define NB_CODES	4
 
 /* keys */
-#define KEY_SHARP 	14
 #define KEY_AST		12
+#define KEY_ZERO	13
+#define KEY_SHARP 	14
 #define NO_KEY		16
+
+
+/* status */
+#define ACCESS_MODE	0
+#define MASTER_MODE 1
 
 
 

@@ -28,13 +28,13 @@ Copyright 2019 T. Hilaire
 
 /* check if the code is correct
  * returns 255 if the code is not correct, otherwise return the code number*/
-uint8_t checkCode(uint8_t codes[NB_CODES][CODE_SIZE], uint8_t theCode[CODE_SIZE]) {
+uint8_t checkCode(uint8_t codes[NB_CODES][CODE_SIZE], uint8_t accessCode[CODE_SIZE]) {
 	/* check individually each code */
 	for(uint8_t i=0; i<NB_CODES; i++) {
 		uint8_t j=4;
-		while ((theCode[j]==codes[i][j-4]) && (theCode[j] != NO_KEY))
+		while ((accessCode[j]==codes[i][j-4]) && (accessCode[j] != NO_KEY))
 			j++;
-		if (theCode[j]==codes[i][j-4])
+		if (accessCode[j]==codes[i][j-4])
 			return i;
 	}
 	/* otherwise, the code is not equal to one of the codes */
@@ -90,4 +90,16 @@ uint8_t waitForKey(){
 	while((PIND&15) != 15);
 
 	return (line<<2) + col;
+}
+
+/* update a code */
+void updateCode(uint8_t codes[NB_CODES][CODE_SIZE], uint8_t accessCode[CODE_SIZE]) {
+	uint8_t iC;	/* index of the code to be updated */
+
+	/* get the number of the code to change (first byte at pos 0 is the key of the code) */
+	iC = (accessCode[0]==KEY_ZERO) ? 0 : (accessCode[0] - ((accessCode[0]>>2)&3) + 1);
+
+	/* change the code */
+	for(uint8_t i=0; i<CODE_SIZE; i++)
+		codes[iC][i] = accessCode[i+4];
 }

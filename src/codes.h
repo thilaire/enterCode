@@ -27,11 +27,14 @@ Copyright 2019 T. Hilaire
 
 /* check if the code is correct
  * returns 255 if the code is not correct, otherwise return the code number*/
-uint8_t checkCode(uint8_t codes[NB_CODES][CODE_SIZE], uint8_t theCode[CODE_SIZE]);
+uint8_t checkCode(uint8_t codes[NB_CODES][CODE_SIZE], uint8_t accessCode[CODE_SIZE]);
 
 
 /* wait for a key, and return the key character */
 uint8_t waitForKey();
+
+/* update a code */
+void updateCode(uint8_t codes[NB_CODES][CODE_SIZE], uint8_t accessCode[CODE_SIZE]);
 
 
 #endif //ENTERCODE_CODES_H
