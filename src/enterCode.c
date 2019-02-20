@@ -142,7 +142,7 @@ uint8_t getZeroBit(uint8_t x)
 
 /* main function: wait for a key, and return the key character
  *
- * the NOP after each PORTB changes are *required*
+ * the NOP after each PORTB changes is *required*
  * */
 uint8_t waitForKey(){
 	uint8_t line, col;
@@ -181,7 +181,7 @@ uint8_t waitForKey(){
 int main()
 {
 	uint8_t key;							/* key hit on the keyboard */
-	uint8_t code[CODE_SIZE + 4];			/* actual code the user is typing on the keyboard */
+	uint8_t accessCode[CODE_SIZE + 4];			/* actual code the user is typing on the keyboard */
 	uint8_t pos = 4;						/* position of the next char (the 4 char are NO_KEY) */
 	uint8_t codes[NB_CODES][CODE_SIZE];		/* array of valid codes (#0 is the master code) */
 	uint8_t nC;								/* code number */
@@ -198,7 +198,7 @@ int main()
 
     /* init code */
 	for(uint8_t i=0; i<CODE_SIZE+4; i++)
-		code[i] = NO_KEY;
+		accessCode[i] = NO_KEY;
 
     /* init message */
     TM1637_setup(5);
@@ -213,7 +213,7 @@ int main()
 		/* manage the key */
 		if (key == KEY_SHARP) {
 			/* end of the code */
-			nC = checkCode(codes, code);
+			nC = checkCode(codes, accessCode);
 			if (nC != 255) {
 				for(uint8_t i=0; i<nC; i++) {
 					Green();
@@ -232,7 +232,7 @@ int main()
 			}
 			/* reset code */
 			for(uint8_t i=0; i<CODE_SIZE+4; i++)
-				code[i] = NO_KEY;
+				accessCode[i] = NO_KEY;
 			TM1637_write4(0,0,0,0);
 			pos = 4;
 		}
@@ -240,13 +240,13 @@ int main()
 			/* delete the last key */
 			if (pos>4)
 				pos--;
-			code[pos] = NO_KEY;
-			TM1637_write4(CODE_CHAR[code[pos-4]], CODE_CHAR[code[pos-3]], CODE_CHAR[code[pos-2]], CODE_CHAR[code[pos-1]]);
+			accessCode[pos] = NO_KEY;
+			TM1637_write4(CODE_CHAR[accessCode[pos-4]], CODE_CHAR[accessCode[pos-3]], CODE_CHAR[accessCode[pos-2]], CODE_CHAR[accessCode[pos-1]]);
 		}
 		else if ( (key != NO_KEY) && (pos<(4+CODE_SIZE)) ) {
 			/* new key */
-			TM1637_write4(CODE_CHAR[code[pos-3]], CODE_CHAR[code[pos-2]], CODE_CHAR[code[pos-1]], CODE_CHAR[key]);
-			code[pos] = key;
+			TM1637_write4(CODE_CHAR[accessCode[pos-3]], CODE_CHAR[accessCode[pos-2]], CODE_CHAR[accessCode[pos-1]], CODE_CHAR[key]);
+			accessCode[pos] = key;
 			pos++;
 		}
 
