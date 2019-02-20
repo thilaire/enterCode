@@ -1,8 +1,31 @@
+/*----------------------------------------------------------------------------
+
+                          *============*
+                          |            |
+                          | enterCode  |
+                          |            |
+                          *============*
+
+
+ Authors: T. HILAIRE
+ Licence: GPL v3
+
+ File: enterCode.c
+       main function for the enterCode project
+       - wait for a key, and turn on/off LEDs accordingly
+
+
+Copyright 2019 T. Hilaire
+
+----------------------------------------------------------------------------*/
+
+
 #include <util/delay.h>
 #include <avr/io.h>
 #include <avr/cpufunc.h>
 
 #include "TM1637.h"
+#include "eeprom.h"
 
 /* input/output
  * PA0: (out) LED1 (red)            PB0: (out) Keyboard 0
@@ -87,49 +110,6 @@ const uint8_t CODE_CHAR[] = {
 		0
 };
 
-
-
-void EEPROM_write(unsigned int ucAddress, unsigned char ucData) {
-/* Wait for completion of previous write */ while(EECR & (1<<EEPE));
-/* Set Programming mode */
-	EECR = (0<<EEPM1)|(0<<EEPM0);
-/* Set up address and data registers */ EEAR = ucAddress;
-	EEDR = ucData;
-/* Write logical one to EEMPE */
-	EECR |= (1<<EEMPE);
-	/* Start eeprom write by setting EEPE */
-	EECR |= (1<<EEPE);
-}
-
-
-unsigned char EEPROM_read(unsigned int ucAddress) {
-	/* Wait for completion of previous write */
-	while(EECR & (1<<EEPE));
-/* Set up address register */
-	EEAR = ucAddress;
-/* Start eeprom read by writing EERE */ EECR |= (1<<EERE);
-/* Return data from data register */ return EEDR;
-}
-
-
-/* read the codes in the EEPROM */
-void readCodesEEPROM(uint8_t codes[NB_CODES][CODE_SIZE]) {
-
-	uint8_t* tab = &(codes[0][0]);
-	for(uint8_t i=0; i<NB_CODES*CODE_SIZE; i++) {
-		*(tab++) = EEPROM_read(i);
-	}
-
-}
-
-void writeCodesEEPROM(uint8_t codes[NB_CODES][CODE_SIZE]) {
-
-	uint8_t* tab = &(codes[0][0]);
-	for(uint8_t i=0; i<NB_CODES*CODE_SIZE; i++) {
-		EEPROM_write(i, *(tab++));
-	}
-
-}
 
 
 
