@@ -99,7 +99,9 @@ void updateCode(uint8_t codes[NB_CODES][CODE_SIZE], uint8_t accessCode[CODE_SIZE
 	/* get the number of the code to change (first byte at pos 0 is the key of the code) */
 	iC = (accessCode[0]==KEY_ZERO) ? 0 : (accessCode[0] - ((accessCode[0]>>2)&3) + 1);
 
-	/* change the code */
-	for(uint8_t i=0; i<CODE_SIZE; i++)
-		codes[iC][i] = accessCode[i+4];
+	/* change the code, if possible */
+	if (iC < NB_CODES) {
+		for (uint8_t i = 0; i < CODE_SIZE; i++)
+			codes[iC][i] = accessCode[i + 4];
+	}
 }
