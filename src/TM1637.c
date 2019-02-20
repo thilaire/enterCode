@@ -1,21 +1,21 @@
 /*----------------------------------------------------------------------------
 
-						  *========================*
-						  |                        |
-						  | Project MissionBoard   |
-						  |                        |
-						  *========================*
+                          *============*
+                          |            |
+                          | enterCode  |
+                          |            |
+                          *============*
 
 
  Authors: T. HILAIRE
  Licence: GPL v3
 
- File: TM1637.h
-	   low-level driver for the TM1637 chip
-	   - basic function to driver the TM1637 chip
+ File: TM1637.c
+       low-level driver for the TM1637 chip
+       - basic function to driver the TM1637 chip
 
 
-Copyright 2017-2018 T. Hilaire
+Copyright 2019 T. Hilaire
 
 ----------------------------------------------------------------------------*/
 
@@ -101,12 +101,8 @@ void TM1637_setup(uint8_t bright)
 	TM1637_write4(0x00, 0x00, 0x00, 0x00);
 }
 
-void TM1637_setbrightness(uint8_t bright)
-{
-	brightness = bright;
-}
 
-
+/* display a number at a given position */
 void TM1637_write(uint8_t data, uint8_t pos)
 {
 
@@ -125,7 +121,7 @@ void TM1637_write(uint8_t data, uint8_t pos)
 }
 
 
-
+/* display 4 numbers */
 void TM1637_write4(uint8_t first, uint8_t second, uint8_t third, uint8_t fourth)
 {
 	start();

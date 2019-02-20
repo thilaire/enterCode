@@ -1,5 +1,11 @@
 /*----------------------------------------------------------------------------
 
+                          *============*
+                          |            |
+                          | enterCode  |
+                          |            |
+                          *============*
+
 
  Authors: T. HILAIRE
  Licence: GPL v3
@@ -8,9 +14,11 @@
        low-level driver for the TM1637 chip
        - basic function to driver the TM1637 chip
 
+
 Copyright 2019 T. Hilaire
 
 ----------------------------------------------------------------------------*/
+
 
 #ifndef _TM1637_H_
 #define _TM1637_H_
@@ -31,7 +39,6 @@ Copyright 2019 T. Hilaire
 
 
 /* intern bit manipulation macros */
-/* TODO: check if they correspond to asm set_bit / clear_bit ? */
 inline __attribute__((always_inline)) static void set_CLK() { TM1637_CLK_PORT |= BIT(TM1637_CLK_PIN); }
 inline __attribute__((always_inline)) static void clear_CLK() { TM1637_CLK_PORT &= ~BIT(TM1637_CLK_PIN); }
 
@@ -46,16 +53,19 @@ inline __attribute__((always_inline)) static void write_DIO(uint8_t b) { b ? set
 
 
 
-/* some constants (cf manual)*/
+/* some constants (cf TM1637 manual)*/
 #define ADDR_AUTO  0x40
 #define ADDR_FIXED 0x44
 #define STARTADDR  0xc0
 
 
-/* functions */
-
+/* initialize the display and set the brightness */
 void TM1637_setup(uint8_t brightness);
+
+/* display 4 numbers */
 void TM1637_write4(uint8_t first, uint8_t second, uint8_t third, uint8_t fourth);
+
+/* display a number at a given position */
 void TM1637_write(uint8_t ch, uint8_t pos);
 
 #endif
