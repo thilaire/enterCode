@@ -12,7 +12,7 @@ FREQ = 8000000UL
 
 # files
 OUT = enterCode
-SRC = enterCode.c TM1637.c
+SRC = enterCode.c TM1637.c eeprom.c
 OBJ = $(SRC:.c=.o)
 
 all: $(OUT).hex
