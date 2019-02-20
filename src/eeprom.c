@@ -18,6 +18,10 @@ Copyright 2019 T. Hilaire
 
 ----------------------------------------------------------------------------*/
 
+#include <avr/io.h>
+
+#include "eeprom.h"
+
 
 /* write a byte in EEPROM, taken from the datasheet */
 void EEPROM_write(unsigned int ucAddress, unsigned char ucData) {

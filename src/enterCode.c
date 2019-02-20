@@ -24,8 +24,10 @@ Copyright 2019 T. Hilaire
 #include <avr/io.h>
 #include <avr/cpufunc.h>
 
+#include "enterCode.h"
 #include "TM1637.h"
 #include "eeprom.h"
+
 
 /* input/output
  * PA0: (out) LED1 (red)            PB0: (out) Keyboard 0
@@ -39,14 +41,7 @@ Copyright 2019 T. Hilaire
  * PD6: (???) RS522
 */
 
-/* maximum code size and number of codes (master + others)*/
-#define CODE_SIZE	8
-#define NB_CODES	4
 
-/* keys */
-#define KEY_SHARP 	14
-#define KEY_AST		12
-#define NO_KEY		16
 
 
 /* debug function */

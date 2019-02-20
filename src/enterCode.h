@@ -10,8 +10,8 @@
  Authors: T. HILAIRE
  Licence: GPL v3
 
- File: eeprom.c
-       simple function to get/set codes into/from the EEPROM
+ File: enterCode.h
+       some constants
 
 
 Copyright 2019 T. Hilaire
@@ -19,16 +19,19 @@ Copyright 2019 T. Hilaire
 ----------------------------------------------------------------------------*/
 
 
-#ifndef ENTERCODE_EEPROM_H
-#define ENTERCODE_EEPROM_H
-
-#include "enterCode.h"
-
-/* read the codes from the EEPROM */
-void readCodesEEPROM(uint8_t codes[NB_CODES][CODE_SIZE]);
-
-/* write the codes into the EEPROM */
-void writeCodesEEPROM(uint8_t codes[NB_CODES][CODE_SIZE]);
+#ifndef ENTERCODE_ENTERCODE_H
+#define ENTERCODE_ENTERCODE_H
 
 
-#endif //ENTERCODE_EEPROM_H
+/* maximum code size and number of codes (master + others)*/
+#define CODE_SIZE	8
+#define NB_CODES	4
+
+/* keys */
+#define KEY_SHARP 	14
+#define KEY_AST		12
+#define NO_KEY		16
+
+
+
+#endif //ENTERCODE_ENTERCODE_H
