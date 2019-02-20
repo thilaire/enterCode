@@ -43,25 +43,6 @@ Copyright 2019 T. Hilaire
 
 
 
-
-/* debug function */
-void Green(uint16_t delay) {
-	PORTA |= 0b00000010;
-	_delay_ms(delay);
-	PORTA &= ~0b00000010;
-}
-
-void Red(uint16_t delay) {
-	PORTA |= 0b00000001;
-	_delay_ms(delay);
-	PORTA &= ~0b00000001;
-}
-void GreenRed(uint16_t delay) {
-	PORTA |= 0b00000011;
-	_delay_ms(delay);
-	PORTA &= ~0b00000011;
-}
-
 const uint8_t NUMBER_FONT[] = {
 		0b00111111, // 0
 		0b00000110, // 1
@@ -159,10 +140,14 @@ int main()
 				}
 				else if (nC != 255) {
 					/* green led */
-					Green(2000);
+					PORTA |= 0b00000010;
+					_delay_ms(2000);
+					PORTA &= ~0b00000010;
 				} else {
 					/* red led */
-					Red(2000);
+					PORTA |= 0b00000001;
+					_delay_ms(2000);
+					PORTA &= ~0b00000001;
 				}
 			} else {
 				/* MASTER MODE */
@@ -177,7 +162,9 @@ int main()
 				TM1637_write4(0, 0, 0, 0);
 				pos = 4;
 				/* green light to tell that it's ok */
-				Green(2000);
+				PORTA |= 0b00000010;
+				_delay_ms(1000);
+				PORTA &= ~0b00000010;
 			}
 		}
 		else if (key == KEY_AST) {
