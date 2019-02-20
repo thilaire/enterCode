@@ -22,10 +22,10 @@ Copyright 2019 T. Hilaire
 
 #include <util/delay.h>
 #include <avr/io.h>
+#include <avr/eeprom.h>
 
 #include "enterCode.h"
 #include "TM1637.h"
-#include "eeprom.h"
 #include "codes.h"
 
 
@@ -103,7 +103,8 @@ int main()
     PORTD = 0b00001111;		 /* PD0 to PD4 with pull-up */
 
     /* import the codes */
-	readCodesEEPROM(codes);
+	//readCodesEEPROM(codes);
+	eeprom_read_block(&(codes[0][0]), (uint8_t*)0, NB_CODES*CODE_SIZE);
 
     /* init code */
 	for(uint8_t i=0; i<CODE_SIZE+4; i++)
@@ -155,7 +156,8 @@ int main()
 				PORTA &= ~0b00000011;
 				/* update the code and write in the EEPROM */
 				updateCode(codes, accessCode);
-				writeCodesEEPROM(codes);
+				//writeCodesEEPROM(codes);
+				eeprom_update_block(&(codes[0][0]), (uint8_t*)0, NB_CODES*CODE_SIZE);
 				/* reset code and display */
 				for (uint8_t i=0; i < CODE_SIZE+4; i++)
 					accessCode[i] = NO_KEY;
