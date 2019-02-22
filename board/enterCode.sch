@@ -5488,7 +5488,6 @@ W = angled&lt;p&gt;
 <part name="IC1" library="lm1117" deviceset="LM1117IMPX-*" device="" technology="3.3"/>
 <part name="SUPPLY12" library="supply2" deviceset="GND" device=""/>
 <part name="SV1" library="con-lstb" deviceset="MA05-2" device=""/>
-<part name="SUPPLY4" library="supply2" deviceset="GND" device=""/>
 <part name="C2" library="capacitor-wima" deviceset="C" device="2.5/4" value="10µF"/>
 <part name="C3" library="capacitor-wima" deviceset="C" device="2.5/4" value="10µF"/>
 <part name="SUPPLY10" library="supply2" deviceset="GND" device=""/>
@@ -5580,9 +5579,6 @@ W = angled&lt;p&gt;
 <attribute name="VALUE" x="67.31" y="60.96" size="1.778" layer="96"/>
 <attribute name="NAME" x="67.31" y="79.502" size="1.778" layer="95"/>
 </instance>
-<instance part="SUPPLY4" gate="GND" x="53.34" y="93.98" smashed="yes" rot="R90">
-<attribute name="VALUE" x="56.515" y="92.075" size="1.778" layer="96" rot="R90"/>
-</instance>
 <instance part="C2" gate="G$1" x="-5.08" y="91.44" smashed="yes" rot="R180">
 <attribute name="NAME" x="-6.604" y="91.059" size="1.778" layer="95" rot="R180"/>
 <attribute name="VALUE" x="-6.604" y="96.139" size="1.778" layer="96" rot="R180"/>
@@ -5668,10 +5664,6 @@ W = angled&lt;p&gt;
 <pinref part="POWER" gate="-2" pin="S"/>
 <pinref part="SUPPLY3" gate="GND" pin="GND"/>
 <wire x1="-27.94" y1="88.9" x2="-27.94" y2="86.36" width="0.1524" layer="91"/>
-</segment>
-<segment>
-<pinref part="IC1" gate="G$1" pin="OUT1"/>
-<pinref part="SUPPLY4" gate="GND" pin="GND"/>
 </segment>
 <segment>
 <pinref part="C3" gate="G$1" pin="1"/>
@@ -5837,6 +5829,9 @@ W = angled&lt;p&gt;
 <wire x1="93.98" y1="91.44" x2="93.98" y2="73.66" width="0.1524" layer="91"/>
 <pinref part="SV1" gate="G$1" pin="7"/>
 <wire x1="93.98" y1="73.66" x2="78.74" y2="73.66" width="0.1524" layer="91"/>
+<pinref part="IC1" gate="G$1" pin="OUT1"/>
+<wire x1="50.8" y1="93.98" x2="50.8" y2="91.44" width="0.1524" layer="91"/>
+<junction x="50.8" y="91.44"/>
 </segment>
 </net>
 <net name="PB4" class="0">
