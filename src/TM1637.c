@@ -23,6 +23,8 @@ Copyright 2019 T. Hilaire
 #include <util/delay.h>
 #include "TM1637.h"
 
+#define DELAY_LONG	10
+#define DELAY_SHORT 1
 
 uint8_t brightness;	/* global brightness */
 
@@ -36,8 +38,10 @@ void start()
 {
 	set_CLK();
 	set_DIO();
+	_delay_us(DELAY_SHORT);
 	clear_DIO();
 	clear_CLK();
+	_delay_us(DELAY_SHORT);
 }
 
 /* send the start signal */
@@ -45,8 +49,10 @@ void stop()
 {
 	clear_CLK();
 	clear_DIO();
+	_delay_us(DELAY_SHORT);
 	set_CLK();
 	set_DIO();
+	_delay_us(DELAY_SHORT);
 }
 
 /* send a value to the TM1637 */
@@ -59,25 +65,29 @@ uint8_t writeByte(uint8_t value)
 	{
 		clear_CLK();
 		write_DIO(value & 1);
+	_delay_us(DELAY_SHORT);
 		value >>= 1;
 		set_CLK();
 	}
 
+	_delay_us(DELAY_SHORT);
+
 	/* wait for ACK */
 	clear_CLK();
 	set_DIO();
+	_delay_us(DELAY_SHORT);
 	set_CLK();
 	set_DIO_Input();
-	_delay_us(50);
+	_delay_us(DELAY_LONG);
 	ack = get_DIO();
 	if (!ack)
 	{
 		set_DIO_Output();
 		clear_DIO();
 	}
-	_delay_us(50);
+	_delay_us(DELAY_LONG);
 	set_DIO_Output();
-	_delay_us(50);
+	_delay_us(DELAY_LONG);
 
 	return ack;
 }
