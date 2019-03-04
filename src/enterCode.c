@@ -113,7 +113,9 @@ int main()
     /* init message */
     TM1637_setup(5);
     TM1637_write4(0b00111001, 0b00111111, 0b01011110, 0b01111001);	/* COdE */
+	PORTA |= 0b00000011;
 	_delay_ms(3000);
+	PORTA &= ~0b00000011;
 	TM1637_setup(5);
 
 	/* main loop */
