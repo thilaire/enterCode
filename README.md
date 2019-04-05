@@ -7,7 +7,7 @@ This is a small toy for my children:
 
 It is powered by three AA battery, and should not consume too much (sleep mode)
 
-![enterCode box](photos/IMG4238.JPG)
+![enterCode box](https://raw.githubusercontent.com/thilaire/enterCode/master/photos/IMG_4237.JPG)
 
 # Principle
 
